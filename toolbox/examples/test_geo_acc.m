@@ -43,7 +43,7 @@ fclose(fid);
 
 
 % for kx = 1:length(gse_ids)
-for kx = 1:5
+for kx = 1:min([5 length(gse_ids)])
     uid = gse_ids{kx};
     url = ['https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gds&id=' uid '&retmode=json'];
     data = webread(url);
@@ -86,8 +86,7 @@ for kx = 1:5
                 save(outmatfile, 'sce', '-v7.3');
             end
         end
-    end
-    
+    end    
 
 end
 
