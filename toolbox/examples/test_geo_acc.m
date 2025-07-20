@@ -1,10 +1,21 @@
-query = 'scRNAseq OR scRNA-seq OR single cell RNA-seq OR single-cell transcriptomics AND ''10x Genomics'' AND "Homo+sapiens"[Organism]';
+isInstalled = exist('scgeatool.m','file') == 2;
+if ~isInstalled
+    msg = sprintf(['The third‑party toolbox "%s" is not detected on your ' ...
+        'MATLAB path. Make sure the folder is added (e.g. using Add‑On ' ...
+        'Manager or addpath). Continue without it?'], 'scGEAToolbox');
+    choice = questdlg(msg, 'Missing Toolbox', 'Yes', 'No', 'No');
+    if strcmp(choice, 'No')
+        return;
+    end
+end
+
+query = '(scRNAseq OR scRNA-seq OR single cell RNA-seq) AND "10x Genomics" AND "Homo+sapiens"[Organism]';
 query = strrep(query, ' ', '+');  % Replace spaces for URL encoding
 
 % Define E-utilities search URL
 baseURL = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi';
 db = 'gds';
-retmax = 1000;  % Max number of results to retrieve
+retmax = 10000;  % Max number of results to retrieve
 url = sprintf('%s?db=%s&term=%s&retmax=%d&retmode=json', baseURL, db, query, retmax);
 
 % Fetch data from NCBI
@@ -16,9 +27,12 @@ data = response;
 % Extract GSE IDs
 gse_ids = data.esearchresult.idlist;
 
+data.esearchresult.querytranslation
+
 % Display results
 fprintf('Found %d GSE IDs related to scRNA-seq:\n', length(gse_ids));
 % disp(gse_ids)
+
 
 % Optionally write to a text file
 fid = fopen('scRNAseq_GSE_list.txt', 'w');
@@ -28,8 +42,8 @@ end
 fclose(fid);
 
 
-for kx = 1:length(gse_ids)
-
+% for kx = 1:length(gse_ids)
+for kx = 1:5
     uid = gse_ids{kx};
     url = ['https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gds&id=' uid '&retmode=json'];
     data = webread(url);
