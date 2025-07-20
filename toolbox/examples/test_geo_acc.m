@@ -43,7 +43,7 @@ fclose(fid);
 
 
 % for kx = 1:length(gse_ids)
-for kx = 1:min([5 length(gse_ids)])
+for kx = 1:min([10 length(gse_ids)])
     uid = gse_ids{kx};
     url = ['https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gds&id=' uid '&retmode=json'];
     data = webread(url);
@@ -62,7 +62,7 @@ for kx = 1:min([5 length(gse_ids)])
     fprintf('UID: %s | GEO accession: %s | Sample size: %d\n', ...
         uid, accession, length(sample_accessions));
     
-    for k = 1:min([5 length(sample_accessions)])
+    for k = 1:min([3 length(sample_accessions)])
         acc = sample_accessions(k);
         outmatfile = fullfile(accession, acc, 'cleandata.mat');
         % outmatfile = sprintf('%s%s%s%scleandata.mat', accession, filesep, acc, filesep);
@@ -70,6 +70,7 @@ for kx = 1:min([5 length(gse_ids)])
             done = false;
             try
                 sce = sc_readgeoaccess(acc);
+                sce = sce.qcfilter;
                 sce = sce.embedcells('tsne3d', true, true, 3);
                 sce = sce.clustercells([], [], true);
                 sce = sce.assigncelltype(speciestag, false);
